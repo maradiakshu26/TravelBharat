@@ -252,8 +252,6 @@ function TestimonialsSection() {
 }
 
 function EnquirySection() {
-  const [submitted, setSubmitted] = useState(false);
-
   return (
     <section className="py-24 px-6">
       <div className="mx-auto max-w-4xl bg-card border border-border p-10 md:p-16 shadow-sm">
@@ -263,69 +261,7 @@ function EnquirySection() {
             Leave your details and our travel specialists will craft your perfect Indian escape.
           </p>
         </div>
-
-        {submitted ? (
-          <div className="text-center py-12">
-            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-              <Star className="text-primary" size={28} />
-            </div>
-            <h3 className="text-2xl font-serif mb-2">Thank You!</h3>
-            <p className="text-muted-foreground">
-              Our travel specialists will reach out within 24 hours to begin crafting your journey.
-            </p>
-          </div>
-        ) : (
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              setSubmitted(true);
-            }}
-            className="grid md:grid-cols-2 gap-8"
-          >
-            <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Full Name
-              </label>
-              <input
-                type="text"
-                required
-                placeholder="Arjun Sharma"
-                className="w-full px-0 py-3 border-b border-border bg-transparent focus:border-primary focus:outline-none transition-colors"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Email Address
-              </label>
-              <input
-                type="email"
-                required
-                placeholder="arjun@example.com"
-                className="w-full px-0 py-3 border-b border-border bg-transparent focus:border-primary focus:outline-none transition-colors"
-              />
-            </div>
-            <div className="space-y-2 md:col-span-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Desired Region
-              </label>
-              <select className="w-full px-0 py-3 border-b border-border bg-transparent focus:border-primary focus:outline-none transition-colors appearance-none cursor-pointer">
-                <option>Royal Rajasthan</option>
-                <option>Himalayan Peaks</option>
-                <option>Southern Sanctuaries</option>
-                <option>Cultural Heartland</option>
-                <option>Wildlife Trails</option>
-              </select>
-            </div>
-            <div className="md:col-span-2 pt-6">
-              <button
-                type="submit"
-                className="w-full py-4 bg-primary text-primary-foreground font-medium tracking-widest uppercase text-sm hover:bg-foreground transition-colors shadow-lg shadow-primary/10"
-              >
-                Send Enquiry
-              </button>
-            </div>
-          </form>
-        )}
+        <EnquiryForm compact />
       </div>
     </section>
   );
