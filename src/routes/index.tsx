@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
-import { MapPin, Clock, Star, ArrowRight, Compass } from "lucide-react";
+import { MapPin, ArrowRight, Compass } from "lucide-react";
+import { EnquiryForm } from "../components/EnquiryForm";
 import heroImg from "../assets/hero-taj-mahal.jpg";
 import destRajasthan from "../assets/dest-rajasthan.jpg";
 import destKerala from "../assets/dest-kerala.jpg";
