@@ -1,125 +1,122 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { MapPin, ArrowRight } from "lucide-react";
-import destJodhpur from "../assets/dest-jodhpur.jpg";
-import destKerala from "../assets/dest-kerala.jpg";
-import destVaranasi from "../assets/dest-varanasi.jpg";
-import destRajasthan from "../assets/dest-rajasthan.jpg";
-import destMunnar from "../assets/dest-munnar.jpg";
-import heroImg from "../assets/hero-taj-mahal.jpg";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
+import { Search, MapPin } from "lucide-react";
+import { placesQuery, statesQuery, categoriesQuery } from "@/lib/catalog";
 
 export const Route = createFileRoute("/destinations")({
   head: () => ({
     meta: [
-      { title: "Destinations — TravelBharat" },
-      { name: "description", content: "Explore India's most captivating destinations from Rajasthan's deserts to Kerala's backwaters." },
-      { property: "og:title", content: "Destinations — TravelBharat" },
-      { property: "og:description", content: "Explore India's most captivating destinations from Rajasthan's deserts to Kerala's backwaters." },
+      { title: "All Destinations — TravelBharat" },
+      { name: "description", content: "Search and filter all Indian tourist destinations by state, city or category." },
+      { property: "og:title", content: "All Destinations — TravelBharat" },
+      { property: "og:description", content: "Search Indian tourist destinations by state, city or category." },
     ],
   }),
   component: DestinationsPage,
 });
 
-const allDestinations = [
-  {
-    title: "The Blue City",
-    location: "Jodhpur, Rajasthan",
-    image: destJodhpur,
-    description: "Wander through vibrant indigo alleyways beneath the mighty Mehrangarh Fort. One of India's most photogenic cities.",
-    highlight: "Heritage",
-  },
-  {
-    title: "Venice of the East",
-    location: "Alleppey, Kerala",
-    image: destKerala,
-    description: "Drift through serene backwaters on a traditional houseboat, surrounded by palm-fringed canals and emerald paddy fields.",
-    highlight: "Nature",
-  },
-  {
-    title: "The Eternal City",
-    location: "Varanasi, Uttar Pradesh",
-    image: destVaranasi,
-    description: "Witness spiritual ceremonies on the sacred Ganges at dawn. The oldest living city in the world.",
-    highlight: "Spiritual",
-  },
-  {
-    title: "Land of Kings",
-    location: "Jaisalmer, Rajasthan",
-    image: destRajasthan,
-    description: "Sleep under the stars in golden dunes, explore living forts, and follow ancient camel caravan routes.",
-    highlight: "Adventure",
-  },
-  {
-    title: "Tea Country",
-    location: "Munnar, Kerala",
-    image: destMunnar,
-    description: "Trek through rolling emerald hills covered in fragrant tea gardens and mist-covered valleys.",
-    highlight: "Nature",
-  },
-  {
-    title: "Crown of India",
-    location: "Agra, Uttar Pradesh",
-    image: heroImg,
-    description: "Stand before the Taj Mahal at sunrise — a monument to love that has captivated travelers for centuries.",
-    highlight: "Heritage",
-  },
-];
-
 function DestinationsPage() {
+  const { data: places } = useQuery(placesQuery);
+  const { data: states } = useQuery(statesQuery);
+  const { data: categories } = useQuery(categoriesQuery);
+
+  const [q, setQ] = useState("");
+  const [state, setState] = useState("");
+  const [category, setCategory] = useState("");
+
+  const filtered = useMemo(() => {
+    if (!places) return [];
+    const needle = q.trim().toLowerCase();
+    return places.filter((p) => {
+      if (state && p.states?.slug !== state) return false;
+      if (category && p.categories?.slug !== category) return false;
+      if (!needle) return true;
+      return (
+        p.name.toLowerCase().includes(needle) ||
+        p.short_description?.toLowerCase().includes(needle) ||
+        p.cities?.name.toLowerCase().includes(needle) ||
+        p.states?.name.toLowerCase().includes(needle)
+      );
+    });
+  }, [places, q, state, category]);
+
   return (
     <div>
-      {/* Page Header */}
-      <section className="py-20 px-6 bg-foreground text-background">
+      <section className="py-16 px-6 bg-foreground text-background">
         <div className="mx-auto max-w-7xl">
           <span className="text-xs font-semibold uppercase tracking-[0.3em] text-saffron mb-4 block">
-            Explore India
+            Search & Discover
           </span>
-          <h1 className="text-5xl md:text-6xl font-serif mb-6">
-            Curated <span className="italic">Discoveries</span>
-          </h1>
-          <p className="max-w-xl text-background/60 text-lg leading-relaxed">
-            Handpicked locales that capture the architectural grandeur, spiritual depth, and natural beauty of the Indian subcontinent.
-          </p>
+          <h1 className="text-5xl md:text-6xl font-serif mb-6">All <span className="italic">Destinations</span></h1>
+
+          <div className="mt-8 grid md:grid-cols-3 gap-3">
+            <div className="relative md:col-span-1">
+              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40" />
+              <input
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Search by place, city…"
+                className="w-full bg-background text-foreground pl-10 pr-4 py-3 text-sm rounded-sm"
+              />
+            </div>
+            <select
+              value={state}
+              onChange={(e) => setState(e.target.value)}
+              className="bg-background text-foreground px-4 py-3 text-sm rounded-sm"
+            >
+              <option value="">All states</option>
+              {states?.map((s) => (
+                <option key={s.id} value={s.slug}>{s.name}</option>
+              ))}
+            </select>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="bg-background text-foreground px-4 py-3 text-sm rounded-sm"
+            >
+              <option value="">All categories</option>
+              {categories?.map((c) => (
+                <option key={c.id} value={c.slug}>{c.name}</option>
+              ))}
+            </select>
+          </div>
         </div>
       </section>
 
-      {/* Destinations Grid */}
-      <section className="py-24 px-6">
+      <section className="py-16 px-6">
         <div className="mx-auto max-w-7xl">
+          <p className="text-sm text-muted-foreground mb-8">{filtered.length} destinations</p>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {allDestinations.map((dest) => (
-              <article
-                key={dest.title}
-                className="group cursor-pointer border border-border bg-card overflow-hidden hover:shadow-lg transition-shadow duration-500"
+            {filtered.map((p) => (
+              <Link
+                key={p.id}
+                to="/places/$state/$place"
+                params={{ state: p.states!.slug, place: p.slug }}
+                className="group block border border-border bg-card overflow-hidden hover:shadow-lg transition-shadow"
               >
-                <div className="relative overflow-hidden">
-                  <img
-                    src={dest.image}
-                    alt={dest.title}
-                    className="w-full aspect-[4/3] object-cover transition-transform duration-700 group-hover:scale-105"
-                    loading="lazy"
-                    width={1024}
-                    height={768}
-                  />
-                  <div className="absolute top-4 left-4">
-                    <span className="bg-background/90 backdrop-blur-sm px-3 py-1 text-[10px] font-semibold uppercase tracking-widest">
-                      {dest.highlight}
-                    </span>
-                  </div>
+                <div className="aspect-[4/3] overflow-hidden">
+                  {p.cover_image && (
+                    <img
+                      src={p.cover_image}
+                      alt={p.name}
+                      loading="lazy"
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                  )}
                 </div>
                 <div className="p-6">
-                  <div className="flex items-center gap-2 text-muted-foreground text-xs mb-3">
-                    <MapPin size={12} />
-                    <span className="uppercase tracking-wider">{dest.location}</span>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground uppercase tracking-widest mb-2">
+                    <MapPin size={12} className="text-saffron" />
+                    {p.cities?.name ? `${p.cities.name}, ` : ""}{p.states?.name}
                   </div>
-                  <h3 className="text-xl font-serif mb-3">{dest.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-                    {dest.description}
-                  </p>
-                  <span className="inline-flex items-center gap-1 text-xs font-medium uppercase tracking-widest text-primary group-hover:gap-2 transition-all">
-                    Explore <ArrowRight size={12} />
-                  </span>
+                  <h3 className="text-xl font-serif mb-2">{p.name}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{p.short_description}</p>
+                  <div className="mt-3 text-xs uppercase tracking-widest text-primary">
+                    {p.categories?.name}
+                  </div>
                 </div>
-              </article>
+              </Link>
             ))}
           </div>
         </div>
