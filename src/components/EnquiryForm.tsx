@@ -1,11 +1,34 @@
 import { useState } from "react";
 import { Star, Send, Loader2 } from "lucide-react";
+import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 
 interface EnquiryFormProps {
   onSuccess?: () => void;
   compact?: boolean;
 }
+
+const ALLOWED_REGIONS = [
+  "Royal Rajasthan",
+  "Himalayan Peaks",
+  "Southern Sanctuaries",
+  "Cultural Heartland",
+  "Wildlife Trails",
+] as const;
+
+const enquirySchema = z.object({
+  full_name: z.string().trim().min(1, "Please enter your name").max(200, "Name is too long"),
+  email: z.string().trim().email("Please enter a valid email").max(255, "Email is too long"),
+  phone: z
+    .string()
+    .trim()
+    .max(30, "Phone number is too long")
+    .regex(/^[+\d\s\-()]*$/, "Phone number contains invalid characters")
+    .optional()
+    .or(z.literal("")),
+  region: z.enum(ALLOWED_REGIONS, { errorMap: () => ({ message: "Please select a valid region" }) }),
+  message: z.string().trim().max(2000, "Message is too long").optional().or(z.literal("")),
+});
 
 export function EnquiryForm({ onSuccess, compact }: EnquiryFormProps) {
   const [submitted, setSubmitted] = useState(false);
@@ -20,12 +43,26 @@ export function EnquiryForm({ onSuccess, compact }: EnquiryFormProps) {
     const form = e.currentTarget;
     const formData = new FormData(form);
 
+    const parsed = enquirySchema.safeParse({
+      full_name: formData.get("full_name") ?? "",
+      email: formData.get("email") ?? "",
+      phone: formData.get("phone") ?? "",
+      region: formData.get("region") ?? "",
+      message: formData.get("message") ?? "",
+    });
+
+    if (!parsed.success) {
+      setLoading(false);
+      setError(parsed.error.issues[0]?.message ?? "Please check the form and try again.");
+      return;
+    }
+
     const { error: insertError } = await supabase.from("enquiries").insert({
-      full_name: formData.get("full_name") as string,
-      email: formData.get("email") as string,
-      phone: (formData.get("phone") as string) || null,
-      region: formData.get("region") as string,
-      message: (formData.get("message") as string) || null,
+      full_name: parsed.data.full_name,
+      email: parsed.data.email,
+      phone: parsed.data.phone ? parsed.data.phone : null,
+      region: parsed.data.region,
+      message: parsed.data.message ? parsed.data.message : null,
     });
 
     setLoading(false);
