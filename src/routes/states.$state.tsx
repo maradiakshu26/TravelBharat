@@ -19,10 +19,10 @@ export const Route = createFileRoute("/states/$state")({
       <Link to="/states" className="text-primary underline">Back to states</Link>
     </div>
   ),
-  errorComponent: ({ error }) => (
+  errorComponent: () => (
     <div className="py-32 text-center">
       <h1 className="text-3xl font-serif mb-4">Couldn’t load state</h1>
-      <p className="text-muted-foreground">{error.message}</p>
+      <p className="text-muted-foreground">We couldn’t load this page. Please try again later.</p>
     </div>
   ),
 });
