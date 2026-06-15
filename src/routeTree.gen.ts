@@ -9,11 +9,22 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as StatesRouteImport } from './routes/states'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as DestinationsRouteImport } from './routes/destinations'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as StatesStateRouteImport } from './routes/states.$state'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as PlacesStatePlaceRouteImport } from './routes/places.$state.$place'
 
+const StatesRoute = StatesRouteImport.update({
+  id: '/states',
+  path: '/states',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
@@ -29,48 +40,128 @@ const ContactRoute = ContactRouteImport.update({
   path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StatesStateRoute = StatesStateRouteImport.update({
+  id: '/$state',
+  path: '/$state',
+  getParentRoute: () => StatesRoute,
+} as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const PlacesStatePlaceRoute = PlacesStatePlaceRouteImport.update({
+  id: '/places/$state/$place',
+  path: '/places/$state/$place',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/destinations': typeof DestinationsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/states': typeof StatesRouteWithChildren
+  '/admin': typeof AuthenticatedAdminRoute
+  '/states/$state': typeof StatesStateRoute
+  '/places/$state/$place': typeof PlacesStatePlaceRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/destinations': typeof DestinationsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/states': typeof StatesRouteWithChildren
+  '/admin': typeof AuthenticatedAdminRoute
+  '/states/$state': typeof StatesStateRoute
+  '/places/$state/$place': typeof PlacesStatePlaceRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/destinations': typeof DestinationsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/states': typeof StatesRouteWithChildren
+  '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/states/$state': typeof StatesStateRoute
+  '/places/$state/$place': typeof PlacesStatePlaceRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/contact' | '/destinations' | '/sitemap.xml'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/contact'
+    | '/destinations'
+    | '/sitemap.xml'
+    | '/states'
+    | '/admin'
+    | '/states/$state'
+    | '/places/$state/$place'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/contact' | '/destinations' | '/sitemap.xml'
-  id: '__root__' | '/' | '/contact' | '/destinations' | '/sitemap.xml'
+  to:
+    | '/'
+    | '/auth'
+    | '/contact'
+    | '/destinations'
+    | '/sitemap.xml'
+    | '/states'
+    | '/admin'
+    | '/states/$state'
+    | '/places/$state/$place'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/contact'
+    | '/destinations'
+    | '/sitemap.xml'
+    | '/states'
+    | '/_authenticated/admin'
+    | '/states/$state'
+    | '/places/$state/$place'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
   ContactRoute: typeof ContactRoute
   DestinationsRoute: typeof DestinationsRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  StatesRoute: typeof StatesRouteWithChildren
+  PlacesStatePlaceRoute: typeof PlacesStatePlaceRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/states': {
+      id: '/states'
+      path: '/states'
+      fullPath: '/states'
+      preLoaderRoute: typeof StatesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
@@ -92,6 +183,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -99,25 +204,62 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/states/$state': {
+      id: '/states/$state'
+      path: '/$state'
+      fullPath: '/states/$state'
+      preLoaderRoute: typeof StatesStateRouteImport
+      parentRoute: typeof StatesRoute
+    }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/places/$state/$place': {
+      id: '/places/$state/$place'
+      path: '/places/$state/$place'
+      fullPath: '/places/$state/$place'
+      preLoaderRoute: typeof PlacesStatePlaceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
+interface StatesRouteChildren {
+  StatesStateRoute: typeof StatesStateRoute
+}
+
+const StatesRouteChildren: StatesRouteChildren = {
+  StatesStateRoute: StatesStateRoute,
+}
+
+const StatesRouteWithChildren =
+  StatesRoute._addFileChildren(StatesRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
   ContactRoute: ContactRoute,
   DestinationsRoute: DestinationsRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  StatesRoute: StatesRouteWithChildren,
+  PlacesStatePlaceRoute: PlacesStatePlaceRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

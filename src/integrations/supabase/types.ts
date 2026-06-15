@@ -14,6 +14,68 @@ export type Database = {
   }
   public: {
     Tables: {
+      categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
+      cities: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          slug: string
+          state_id: string
+          summary: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          slug: string
+          state_id: string
+          summary?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          slug?: string
+          state_id?: string
+          summary?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cities_state_id_fkey"
+            columns: ["state_id"]
+            isOneToOne: false
+            referencedRelation: "states"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       enquiries: {
         Row: {
           created_at: string
@@ -47,15 +109,163 @@ export type Database = {
         }
         Relationships: []
       }
+      states: {
+        Row: {
+          cover_image: string | null
+          created_at: string
+          id: string
+          name: string
+          region: string | null
+          slug: string
+          summary: string | null
+          updated_at: string
+        }
+        Insert: {
+          cover_image?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          region?: string | null
+          slug: string
+          summary?: string | null
+          updated_at?: string
+        }
+        Update: {
+          cover_image?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          region?: string | null
+          slug?: string
+          summary?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      tourist_places: {
+        Row: {
+          best_time_to_visit: string | null
+          category_id: string | null
+          city_id: string | null
+          cover_image: string | null
+          created_at: string
+          description: string | null
+          entry_fee: string | null
+          history: string | null
+          id: string
+          images: string[]
+          is_published: boolean
+          map_link: string | null
+          name: string
+          nearby_attractions: Json
+          short_description: string | null
+          slug: string
+          state_id: string
+          timings: string | null
+          updated_at: string
+        }
+        Insert: {
+          best_time_to_visit?: string | null
+          category_id?: string | null
+          city_id?: string | null
+          cover_image?: string | null
+          created_at?: string
+          description?: string | null
+          entry_fee?: string | null
+          history?: string | null
+          id?: string
+          images?: string[]
+          is_published?: boolean
+          map_link?: string | null
+          name: string
+          nearby_attractions?: Json
+          short_description?: string | null
+          slug: string
+          state_id: string
+          timings?: string | null
+          updated_at?: string
+        }
+        Update: {
+          best_time_to_visit?: string | null
+          category_id?: string | null
+          city_id?: string | null
+          cover_image?: string | null
+          created_at?: string
+          description?: string | null
+          entry_fee?: string | null
+          history?: string | null
+          id?: string
+          images?: string[]
+          is_published?: boolean
+          map_link?: string | null
+          name?: string
+          nearby_attractions?: Json
+          short_description?: string | null
+          slug?: string
+          state_id?: string
+          timings?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tourist_places_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tourist_places_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tourist_places_state_id_fkey"
+            columns: ["state_id"]
+            isOneToOne: false
+            referencedRelation: "states"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -182,6 +392,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const

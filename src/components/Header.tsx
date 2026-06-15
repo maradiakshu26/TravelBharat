@@ -6,9 +6,10 @@ export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const navLinks = [
+    { to: "/states", label: "States" },
     { to: "/destinations", label: "Destinations" },
-    { to: "/contact", label: "Plan Your Trip" },
-  ];
+    { to: "/contact", label: "Contact" },
+  ] as const;
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
@@ -32,7 +33,7 @@ export function Header() {
 
         <Link
           to="/contact"
-          className="hidden md:inline-flex items-center justify-center rounded-sm bg-primary px-6 py-2.5 text-sm font-medium uppercase tracking-widest text-primary-foreground transition-colors hover:bg-terracotta/90"
+          className="hidden md:inline-flex items-center justify-center rounded-sm bg-primary px-6 py-2.5 text-sm font-medium uppercase tracking-widest text-primary-foreground transition-colors hover:bg-primary/90"
         >
           Enquire Now
         </Link>
