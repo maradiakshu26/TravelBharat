@@ -19,10 +19,10 @@ export const Route = createFileRoute("/sitemap.xml")({
           ]);
           stateEntries = states ?? [];
           placeEntries =
-            places?.map((p: { slug: string; states: { slug: string } | null }) => ({
-              slug: p.slug,
-              state: p.states?.slug ?? "",
-            })).filter((p) => p.state) ?? [];
+            places?.map((p: { slug: string; states: { slug: string } | { slug: string }[] | null }) => {
+              const st = Array.isArray(p.states) ? p.states[0] : p.states;
+              return { slug: p.slug, state: st?.slug ?? "" };
+            }).filter((p) => p.state) ?? [];
         }
 
         const staticPaths = ["/", "/states", "/destinations", "/contact"];
