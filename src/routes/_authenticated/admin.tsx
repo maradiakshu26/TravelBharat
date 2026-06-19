@@ -27,17 +27,18 @@ function AdminPage() {
   });
 
   const { data: places } = useQuery({
-    queryKey: ["admin", "places"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("tourist_places")
-        .select("id, name, slug, is_published, states(name)")
-        .order("name");
-      if (error) throw error;
-      return data;
-    },
-    enabled: isAdmin === true,
-  });
+  queryKey: ["admin", "places"],
+  queryFn: async () => {
+    const { data, error } = await supabase
+      .from("destinations")
+      .select("*")
+      .order("name");
+
+    if (error) throw error;
+    return data;
+  },
+  enabled: isAdmin === true,
+});
 
   const { data: enquiries } = useQuery({
     queryKey: ["admin", "enquiries"],
@@ -52,18 +53,19 @@ function AdminPage() {
     enabled: isAdmin === true,
   });
 
-  async function togglePublish(id: string, current: boolean) {
-    const { error } = await supabase
-      .from("tourist_places")
-      .update({ is_published: !current })
-      .eq("id", id);
-    if (error) {
-      alert(error.message);
-      return;
-    }
-    qc.invalidateQueries({ queryKey: ["admin", "places"] });
-    qc.invalidateQueries({ queryKey: ["places", "all"] });
+  async function deleteDestination(id: string) {
+  const { error } = await supabase
+    .from("destinations")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    alert(error.message);
+    return;
   }
+
+  qc.invalidateQueries({ queryKey: ["admin", "places"] });
+}
 
   async function signOut() {
     await supabase.auth.signOut();
@@ -88,14 +90,30 @@ function AdminPage() {
   return (
     <div className="py-16 px-6">
       <div className="mx-auto max-w-7xl">
-        <div className="flex items-center justify-between mb-10">
-          <div>
-            <h1 className="text-4xl font-serif">Admin dashboard</h1>
-            <p className="text-sm text-muted-foreground mt-1">Signed in as {user.email}</p>
-          </div>
-          <button onClick={signOut} className="text-sm underline">Sign out</button>
-        </div>
+       <div className="flex items-center justify-between mb-10">
+  <div>
+    <h1 className="text-4xl font-serif">Admin Dashboard</h1>
+    <p className="text-sm text-muted-foreground mt-1">
+      Signed in as {user.email}
+    </p>
+  </div>
 
+  <div className="flex gap-3">
+    <button
+      onClick={() => navigate({ to: "/add-destination" })}
+      className="bg-green-600 text-white px-4 py-2 rounded"
+    >
+      Add Destination
+    </button>
+
+    <button
+      onClick={signOut}
+      className="text-sm underline"
+    >
+      Sign Out
+    </button>
+  </div>
+</div>
         <section className="mb-16">
           <h2 className="text-2xl font-serif mb-4">Destinations ({places?.length ?? 0})</h2>
           <div className="border border-border overflow-x-auto">
@@ -104,30 +122,35 @@ function AdminPage() {
                 <tr>
                   <th className="px-4 py-3">Name</th>
                   <th className="px-4 py-3">State</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3"></th>
+                  <th className="px-4 py-3">Category</th>
+                  <th className="px-4 py-3">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {places?.map((p) => (
                   <tr key={p.id} className="border-t border-border">
-                    <td className="px-4 py-3 font-medium">{p.name}</td>
-                    <td className="px-4 py-3">{p.states?.name}</td>
-                    <td className="px-4 py-3">
-                      <span className={`text-xs uppercase tracking-widest ${p.is_published ? "text-primary" : "text-muted-foreground"}`}>
-                        {p.is_published ? "Published" : "Draft"}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <button
-                        onClick={() => togglePublish(p.id, p.is_published)}
-                        className="text-xs underline"
-                      >
-                        {p.is_published ? "Unpublish" : "Publish"}
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+  <td className="px-4 py-3 font-medium">
+    {p.name}
+  </td>
+
+  <td className="px-4 py-3">
+    {p.state}
+  </td>
+
+  <td className="px-4 py-3">
+    {p.category}
+  </td>
+
+  <td className="px-4 py-3 text-right">
+    <button
+      onClick={() => deleteDestination(p.id)}
+      className="text-red-500 underline"
+    >
+      Delete
+    </button>
+  </td>
+</tr>
+                  ))}
               </tbody>
             </table>
           </div>
